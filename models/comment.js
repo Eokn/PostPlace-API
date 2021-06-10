@@ -1,12 +1,10 @@
 import mongoose from 'mongoose'
 
-const postSchema = mongoose.Schema({
-    title: String,
+const commentSchema = mongoose.Schema({
     message: String,
     name: String,
     creator: String,
-    tags: [String],
-    selectedFile: String,
+    belongsTo: String,
     likes: {
         type: [String],
         default: []
@@ -17,6 +15,6 @@ const postSchema = mongoose.Schema({
     }
 });
 
-const PostMessage = mongoose.model('PostMessage', postSchema)
+const Comment = mongoose.model('Comment', commentSchema)
 
-export default PostMessage
+export default Comment

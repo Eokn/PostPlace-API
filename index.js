@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import cors from 'cors'
 //this is importing 'router' from posts but renaming it to postRoutes. I believe this can only be done if you export default the thing.
 import postRoutes from './routes/posts.js'
+import userRoutes from './routes/users.js'
 import dotenv from 'dotenv'
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.json({ limit: '10mb', extended:true}))
 app.use(cors())
 
 app.use('/posts', postRoutes)
+app.use('/users', userRoutes)
 
 app.get('/', (req,res)=>{
     res.send('Connected to API successfully.')
