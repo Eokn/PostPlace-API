@@ -4,6 +4,8 @@ import auth from '../middleware/auth.js';
 
 const router = express.Router();
 
+//Use auth when making changes to the database.
+
 router.get('/', getPosts)
 router.get('/search', getPostsWithSearch)
 router.post('/', auth, createPost)

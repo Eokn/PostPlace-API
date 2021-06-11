@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 
+//Can store a base64 string as selectedFile, likes is an array of user ids, creator is a user id too.
 const postSchema = mongoose.Schema({
     title: String,
     message: String,

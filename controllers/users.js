@@ -4,9 +4,9 @@ import User from '../models/user.js'
 import dotenv from 'dotenv'
 dotenv.config()
 
+//Get the email/password, use to verify correct user and password via bcrypt, sign the jwt.
 export const signIn = async (req,res) => {
     const { email, password } = req.body
-
     try {
         const oldUser = await User.findOne({ email })
 
@@ -26,15 +26,11 @@ export const signIn = async (req,res) => {
 
 }
 
+//Get the formData, check if data allows for account to be made, hash the password, create a user, sign the jwt.
 export const signUp = async (req,res) => {
     const { email,password,confirmPassword,firstName,lastName } = req.body
-
-    await console.log('got to here...', req.body)
-    
     try {
         const oldUser = await User.findOne({email})
-
-        console.log(oldUser)
 
         if(oldUser) return res.status(400).json({message: `User registered user with email: ${email} already exists.`})
 
