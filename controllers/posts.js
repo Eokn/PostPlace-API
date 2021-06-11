@@ -198,7 +198,7 @@ export const deleteComment = async (req, res) => {
         return res.status(404).send('No post with that id');
     }
 
-    const originalComment = await PostMessage.findById(_id);
+    const originalComment = await Comment.findById(commentId);
 
     if(req.userId !== originalComment.creator) return res.json({message: 'Not allowed to do that!'})
 
