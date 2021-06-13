@@ -6,7 +6,7 @@ import mongoose from 'mongoose'
 export const getPosts = async (req,res) => {
     const { page } = req.query
     try {
-        const limit = 4
+        const limit = 8
         const startIndex = (Number(page)-1)*limit
         const total = await PostMessage.countDocuments({})
         const posts =  await PostMessage.find().sort({_id:-1}).limit(limit).skip(startIndex)
@@ -23,7 +23,7 @@ export const getPostsWithSearch = async (req,res) => {
 
     const { searchQuery, tags, page } = req.query
     try {
-        const limit = 4
+        const limit = 8
         const startIndex = (Number(page)-1)*limit
         const title = new RegExp(searchQuery, 'i')
         const total = await PostMessage.countDocuments({ $or: [ { title }, { tags: { $in: tags.split(',') } } ] })
@@ -115,7 +115,7 @@ export const deletePost = async (req, res) => {
     
     await PostMessage.findByIdAndRemove(_id)
 
-    res.json({message: 'Post deleted successfully'})
+    res.json(originalPost)
 }
 
 //Update post, with toggle functionality on the array of userIds (likes)
@@ -204,5 +204,5 @@ export const deleteComment = async (req, res) => {
 
     await Comment.findByIdAndRemove(commentId)
 
-    res.json({message: 'Comment deleted successfully'})
+    res.json(originalComment)
 }

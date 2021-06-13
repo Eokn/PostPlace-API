@@ -25,12 +25,26 @@ export const signIn = async (req,res) => {
     }
 
 }
-
 //Get the formData, check if data allows for account to be made, hash the password, create a user, sign the jwt.
 export const signUp = async (req,res) => {
     const { email,password,confirmPassword,firstName,lastName } = req.body
+    console.log(req.body)
     try {
-        const oldUser = await User.findOne({email})
+        //Guest account block, checks for certain values and creates an account.
+        if(firstName==='' && lastName==='' && email==='guest@mail.com' && password==='guest123' && confirmPassword==='guest123') {
+            console.log('guest tried to sign in')
+            const random = Math.floor(Math.random()*1000000000)
+            console.log(random)
+            let newEmail = `guest${random}@mail.com`
+            const oldUser = await User.findOne({newEmail})
+            if(oldUser){newEmail = `guest${random+1}@mail.com`}
+            const result = await User.create({ email:newEmail, password, name:`Guest ${random}`})
+            const token = jwt.sign({ email: result.email, id: result._id }, process.env.JWT_SECRET, {expiresIn:'1h'})
+            console.log(result)
+            res.status(200).json({ result, token })
+
+        }
+        else{const oldUser = await User.findOne({email})
 
         if(oldUser) return res.status(400).json({message: `User registered user with email: ${email} already exists.`})
 
@@ -43,7 +57,7 @@ export const signUp = async (req,res) => {
         const token = jwt.sign({ email: result.email, id: result._id }, process.env.JWT_SECRET, {expiresIn:'1h'})
         
         res.status(200).json({ result, token })
-
+}
     } catch (error) {
         res.status(500).json({message:'Something went wrong.'})
     }

@@ -4,6 +4,9 @@ import cors from 'cors'
 import postRoutes from './routes/posts.js'
 import userRoutes from './routes/users.js'
 import dotenv from 'dotenv'
+import { createServer } from "http";
+import { Server } from "socket.io";
+import PostMessage from './models/postMessage.js'
 
 const app = express();
 dotenv.config()
@@ -21,8 +24,49 @@ app.get('/', (req,res)=>{
     res.send('Connected to API successfully.')
 })
 
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", 'PUT','PATCH','DELETE']
+  }
+});
+
+//socket.io ons and emits.
+io.on("connection", (socket) => {
+  console.log("New client connected");
+
+  socket.on('updatePost', data => {
+    io.emit('updatedPost', data)
+  })
+
+  socket.on('deletePost', data => {
+    io.emit('deletedPost', data)
+  })
+
+  socket.on('addPost', data => {
+    io.emit('addedPost', data)
+  })
+
+  socket.on('addComment', data => {
+    io.emit('addedComment', data)
+  })
+
+  socket.on('updateComment', data => {
+    io.emit('updatedComment', data)
+  })
+
+  socket.on('deleteComment', data => {
+    io.emit('deletedComment', data)
+  })
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 
 mongoose.connect(process.env.CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false } )
-.then( () => app.listen(PORT, ()=>console.log(`Server running on port ${PORT}`)) )
+.then( () => httpServer.listen(PORT, ()=>console.log(`Server running on port ${PORT}`)) )
 .catch( (err) => console.log(err, process.env.CONNECTION_URL) )
