@@ -26,7 +26,7 @@ app.get('/', (req,res)=>{
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "https://postplacegenericmernapp.netlify.app/posts",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST", 'PUT','PATCH','DELETE']
   }
 });
