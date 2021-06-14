@@ -6,7 +6,6 @@ import userRoutes from './routes/users.js'
 import dotenv from 'dotenv'
 import { createServer } from "http";
 import { Server } from "socket.io";
-import PostMessage from './models/postMessage.js'
 
 const app = express();
 dotenv.config()
@@ -27,7 +26,7 @@ app.get('/', (req,res)=>{
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://postplacegenericmernapp.netlify.app/posts",
     methods: ["GET", "POST", 'PUT','PATCH','DELETE']
   }
 });
