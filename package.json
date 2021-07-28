@@ -19,5 +19,8 @@
     "mongoose": "^5.12.10",
     "nodemon": "^2.0.7",
     "socket.io": "^4.1.2"
+  },
+  "devDependencies": {
+    "faker": "^5.5.3"
   }
 }

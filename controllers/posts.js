@@ -2,14 +2,14 @@ import PostMessage from '../models/postMessage.js'
 import Comment from '../models/comment.js'
 import mongoose from 'mongoose'
 
-//Get 4 posts according to page number, send them back.
+//Get 8 posts according to page number, send them back.
 export const getPosts = async (req,res) => {
     const { page } = req.query
     try {
         const limit = 8
         const startIndex = (Number(page)-1)*limit
         const total = await PostMessage.countDocuments({})
-        const posts =  await PostMessage.find().sort({_id:-1}).limit(limit).skip(startIndex)
+        const posts =  await PostMessage.find().sort({createdAt:-1}).limit(limit).skip(startIndex)
         
         res.status(200).json({data: posts, currentPage: Number(page), numberOfPages: Math.ceil(total / limit)})
     } catch (error) {
@@ -18,7 +18,7 @@ export const getPosts = async (req,res) => {
 
 }
 
-//Get 4 posts according to page number and query parameters.
+//Get 8 posts according to page number and query parameters.
 export const getPostsWithSearch = async (req,res) => {
 
     const { searchQuery, tags, page } = req.query
@@ -27,7 +27,7 @@ export const getPostsWithSearch = async (req,res) => {
         const startIndex = (Number(page)-1)*limit
         const title = new RegExp(searchQuery, 'i')
         const total = await PostMessage.countDocuments({ $or: [ { title }, { tags: { $in: tags.split(',') } } ] })
-        const posts = await PostMessage.find({ $or: [ { title }, { tags: { $in: tags.split(',') } } ] }).sort({ _id: -1 }).limit(limit).skip(startIndex)
+        const posts = await PostMessage.find({ $or: [ { title }, { tags: { $in: tags.split(',') } } ] }).sort({createdAt: -1 }).limit(limit).skip(startIndex)
         console.log(posts)
         res.status(200).json({data: posts, currentPage: Number(page), numberOfPages: Math.ceil(total / limit)})
     } catch (error) {
@@ -36,9 +36,7 @@ export const getPostsWithSearch = async (req,res) => {
 
 }
 
-//It looks like PostMessage.aggregate(pipeline, options) is the only way for me to concisely find and order and cut out as needed.
-//It will allow me to do exactly what I want to do: return exactly 5 posts, 1 guaranteed to be the matching Id one and 5 recommended ones, ordered by amount of likes using one query.
-//I also get the comments for the post. I could probably do this in one aggregate somehow.
+//Get 5 posts, 1 being the main post of the page and 4 being recommended based on creator / likecount, order and send back.
 export const getPost = async (req,res) => {
     const { id } = req.params
     try {
@@ -55,7 +53,7 @@ export const getPost = async (req,res) => {
         const posts = await PostMessage.aggregate(pipeline)
         const commentSearch = [
             { $match : { belongsTo: id } },
-            { $sort : { createdAt: 1 } },
+            { $sort : { createdAt: -1 } },
             { $limit: 10 }
         ]
         const comments = await Comment.aggregate(commentSearch)

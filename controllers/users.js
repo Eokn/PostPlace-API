@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import User from '../models/user.js'
+import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -61,4 +62,23 @@ export const signUp = async (req,res) => {
     } catch (error) {
         res.status(500).json({message:'Something went wrong.'})
     }
+}
+
+//Gets posts and comments made by a specific user, orders by date and sends them back.
+export const getUserInfo = async (req,res) => {
+    const { id } = req.params
+    try {
+        const userSearch = [
+            { $match : { _id: mongoose.Types.ObjectId(id) } },
+            { $lookup: { from: 'postmessages', localField: 'name', foreignField: 'name', as: 'posts' } }, 
+            { $lookup: { from: 'comments', localField: 'name', foreignField: 'name', as: 'comments' } },
+            { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
+        ]
+        const userInfo = await User.aggregate(userSearch)
+        userInfo[0].info = userInfo[0].info.sort((a,b) => b.createdAt - a.createdAt)
+        res.status(200).json({userInfo})
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+
 }
