@@ -111,7 +111,7 @@ export const deletePost = async (req, res) => {
 
     if(req.userId !== originalPost.creator) return res.json({message: 'Not allowed to do that!'})
     
-    await Comments.deleteMany( {"belongsTo" : _id} )
+    await Comment.deleteMany( {"belongsTo" : _id} )
 
     await PostMessage.findByIdAndRemove(_id)
 
