@@ -102,7 +102,12 @@ export const getUserInfo = async (req,res) => {
             { $lookup: { from: 'comments', localField: 'name', foreignField: 'name', as: 'comments' } },
             { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
         ]
-        const userInfo = await User.aggregate( isGoogleId ? googleUserSearch : userSearch )
+        if(isGoogleId){
+            const userInfo = await User.aggregate( googleUserSearch )
+        }
+        else{
+            const userInfo = await User.aggregate( userSearch )
+        }
         console.log('search completed', userInfo[0].name, userInfo[0].info)
         userInfo[0].info = userInfo[0].info.sort((a,b) => b.createdAt - a.createdAt)
         res.status(200).json({userInfo})
