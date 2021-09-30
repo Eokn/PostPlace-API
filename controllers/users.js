@@ -97,7 +97,7 @@ export const getUserInfo = async (req,res) => {
             { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
         ]
         const googleUserSearch = [
-            { $match : { id: String(id) } },
+            { $match : { id: { $exists : true } } },
             { $lookup: { from: 'postmessages', localField: 'name', foreignField: 'name', as: 'posts' } }, 
             { $lookup: { from: 'comments', localField: 'name', foreignField: 'name', as: 'comments' } },
             { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
