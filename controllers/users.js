@@ -66,7 +66,7 @@ export const signUp = async (req,res) => {
 export const googleSignUp = async (req,res) => {
     const { email, name } = req.body
     //req.userId will be sent over, can be used to check if account has been made.
-
+    console.log(req.userId)
     const oldUser = await User.findOne({_id: req.userId})
 
     if(oldUser) return res.status(200).json({message:`google user ${req.userId} already recorded.`})
@@ -74,7 +74,8 @@ export const googleSignUp = async (req,res) => {
     //If there's already an account, let em know to move on. Otherwise, use the given token to create one.
 
     else{
-        const dummyAccount = await User.create({ email, name, password: 'GoogleAccount', id:mongoose.Types.ObjectId(req.userId) })
+        console.log('Now trying to create a user.')
+        const dummyAccount = await User.create({ email, name, password: 'GoogleAccount', id:req.userId })
         res.status(200).json({ message:`Account created for ${req.userId}.` })
     }
 
