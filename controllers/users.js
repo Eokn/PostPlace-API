@@ -88,8 +88,10 @@ export const getUserInfo = async (req,res) => {
     const isGoogleId = !mongoose.Types.ObjectId.isValid(id)
     console.log(isGoogleId, 'This is the boolean saying what type of id we got.')
     try {
+        const search = isGoogleId ? id : mongoose.Types.ObjectId(id)
+        console.log(`searching with the search parameter ${search} in mind!`)
         const userSearch = [
-            { $match : { _id: mongoose.Types.ObjectId(id) } },
+            { $match : { _id: search } },
             { $lookup: { from: 'postmessages', localField: 'name', foreignField: 'name', as: 'posts' } }, 
             { $lookup: { from: 'comments', localField: 'name', foreignField: 'name', as: 'comments' } },
             { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
