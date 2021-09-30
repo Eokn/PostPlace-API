@@ -70,11 +70,7 @@ export const googleSignUp = async (req,res) => {
     const oldUser = await User.findOne({email})
 
     if(oldUser) return res.status(200).json({message:`google user ${req.userId} already recorded.`})
-
-    //If there's already an account, let em know to move on. Otherwise, use the given token to create one.
-
     else{
-        console.log('Now trying to create a user.')
         const dummyAccount = await User.create({ email, name, password: 'GoogleAccount', id:req.userId })
         res.status(200).json({ message:`Account created for ${req.userId}.` })
     }
@@ -84,12 +80,8 @@ export const googleSignUp = async (req,res) => {
 //Gets posts and comments made by a specific user, orders by date and sends them back.
 export const getUserInfo = async (req,res) => {
     const { id } = req.params
-    console.log(`Getting user ${id}'s info - posts and comments`)
     const isGoogleId = !mongoose.Types.ObjectId.isValid(id)
-    console.log(isGoogleId, 'This is the boolean saying what type of id we got.')
     try {
-        const search = isGoogleId ? String(id) : mongoose.Types.ObjectId(id)
-        console.log(`searching with the search parameter ${search} in mind!`)
         let userInfo
         if(isGoogleId){
             const googleUserSearch = [
@@ -98,7 +90,6 @@ export const getUserInfo = async (req,res) => {
                 { $lookup: { from: 'comments', localField: 'name', foreignField: 'name', as: 'comments' } },
                 { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
             ]
-            console.log('got down to here - right before the aggregate...')
             userInfo = await User.aggregate( googleUserSearch )
         }
         else{
@@ -110,7 +101,6 @@ export const getUserInfo = async (req,res) => {
             ]
             userInfo = await User.aggregate( userSearch )
         }
-        console.log('search completed', userInfo[0].name, userInfo[0].info)
         userInfo[0].info = userInfo[0].info.sort((a,b) => b.createdAt - a.createdAt)
         res.status(200).json({userInfo})
     } catch (error) {
