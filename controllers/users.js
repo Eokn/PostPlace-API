@@ -74,7 +74,7 @@ export const googleSignUp = async (req,res) => {
     //If there's already an account, let em know to move on. Otherwise, use the given token to create one.
 
     else{
-        const dummyAccount = await User.create({ email, name, password: 'GoogleAccount', _id:req.userId })
+        const dummyAccount = await User.create({ email, name, password: 'GoogleAccount', _id:mongoose.Types.ObjectId(req.userId) })
         res.status(200).json({ message:`Account created for ${req.userId}.` })
     }
 
