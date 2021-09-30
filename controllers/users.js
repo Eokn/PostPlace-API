@@ -88,7 +88,7 @@ export const getUserInfo = async (req,res) => {
     const isGoogleId = !mongoose.Types.ObjectId.isValid(id)
     console.log(isGoogleId, 'This is the boolean saying what type of id we got.')
     try {
-        const search = isGoogleId ? id : mongoose.Types.ObjectId(id)
+        const search = isGoogleId ? String(id) : mongoose.Types.ObjectId(id)
         console.log(`searching with the search parameter ${search} in mind!`)
         const userSearch = [
             { $match : { _id: search } },
