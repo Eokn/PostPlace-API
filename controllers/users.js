@@ -64,7 +64,7 @@ export const signUp = async (req,res) => {
     }
 }
 export const googleSignUp = async (req,res) => {
-    const { email, name }
+    const { email, name } = req.body
     //req.userId will be sent over, can be used to check if account has been made.
 
     const oldUser = await User.findOne({_id: req.userId})
