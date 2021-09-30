@@ -91,12 +91,18 @@ export const getUserInfo = async (req,res) => {
         const search = isGoogleId ? String(id) : mongoose.Types.ObjectId(id)
         console.log(`searching with the search parameter ${search} in mind!`)
         const userSearch = [
-            { $match : { _id: search } },
+            { $match : { _id: mongoose.Types.ObjectId(id) } },
             { $lookup: { from: 'postmessages', localField: 'name', foreignField: 'name', as: 'posts' } }, 
             { $lookup: { from: 'comments', localField: 'name', foreignField: 'name', as: 'comments' } },
             { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
         ]
-        const userInfo = await User.aggregate(userSearch)
+        const googleUserSearch = [
+            { $match : { id: String(id) } },
+            { $lookup: { from: 'postmessages', localField: 'name', foreignField: 'name', as: 'posts' } }, 
+            { $lookup: { from: 'comments', localField: 'name', foreignField: 'name', as: 'comments' } },
+            { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
+        ]
+        const userInfo = await User.aggregate( isGoogleId ? googleUserSearch : userSearch )
         console.log('search completed', userInfo[0].name, userInfo[0].info)
         userInfo[0].info = userInfo[0].info.sort((a,b) => b.createdAt - a.createdAt)
         res.status(200).json({userInfo})
