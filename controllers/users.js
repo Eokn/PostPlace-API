@@ -97,16 +97,18 @@ export const getUserInfo = async (req,res) => {
             { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
         ]
         const googleUserSearch = [
-            { $match : { id: { $exists : true } } },
+            { $match : { id: String(id) } },
             { $lookup: { from: 'postmessages', localField: 'name', foreignField: 'name', as: 'posts' } }, 
             { $lookup: { from: 'comments', localField: 'name', foreignField: 'name', as: 'comments' } },
             { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
         ]
+        let userInfo
         if(isGoogleId){
-            const userInfo = await User.aggregate( googleUserSearch )
+            console.log('got down to here - right before the aggregate...')
+            userInfo = await User.aggregate( googleUserSearch )
         }
         else{
-            const userInfo = await User.aggregate( userSearch )
+            userInfo = await User.aggregate( userSearch )
         }
         console.log('search completed', userInfo[0].name, userInfo[0].info)
         userInfo[0].info = userInfo[0].info.sort((a,b) => b.createdAt - a.createdAt)
