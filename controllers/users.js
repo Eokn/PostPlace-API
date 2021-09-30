@@ -67,7 +67,7 @@ export const googleSignUp = async (req,res) => {
     const { email, name } = req.body
     //req.userId will be sent over, can be used to check if account has been made.
     console.log(req.userId)
-    const oldUser = await User.findOne({_id: mongoose.Types.ObjectId(req.userId) })
+    const oldUser = await User.findOne({email})
 
     if(oldUser) return res.status(200).json({message:`google user ${req.userId} already recorded.`})
 
