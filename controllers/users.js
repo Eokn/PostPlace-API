@@ -84,6 +84,9 @@ export const googleSignUp = async (req,res) => {
 //Gets posts and comments made by a specific user, orders by date and sends them back.
 export const getUserInfo = async (req,res) => {
     const { id } = req.params
+    console.log(`Getting user ${id}'s info - posts and comments`)
+    const isGoogleId = mongoose.Types.ObjectId(id) ? false : true
+    console.log(isGoogleId, 'This is the boolean saying what type of id we got.')
     try {
         const userSearch = [
             { $match : { _id: mongoose.Types.ObjectId(id) } },
