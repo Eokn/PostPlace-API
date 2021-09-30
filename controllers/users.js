@@ -43,7 +43,7 @@ export const signUp = async (req,res) => {
             const token = jwt.sign({ email: result.email, id: result._id }, process.env.JWT_SECRET, {expiresIn:'1h'})
             console.log(result)
             res.status(200).json({ result, token })
-            
+
         }
         else{const oldUser = await User.findOne({email})
 
@@ -63,7 +63,23 @@ export const signUp = async (req,res) => {
         res.status(500).json({message:'Something went wrong.'})
     }
 }
+export const googleSignUp = async (req,res) => {
+    const { email, name }
+    //req.userId will be sent over, can be used to check if account has been made.
 
+    const oldUser = await User.findOne({_id: req.userId})
+
+    if(oldUser) return res.status(200).json({message:`google user ${req.userId} already recorded.`})
+
+    //If there's already an account, let em know to move on. Otherwise, use the given token to create one.
+
+    else{
+        const dummyAccount = await User.create({ email, name, password: 'GoogleAccount', _id:req.userId })
+        res.status(200).json({ message:`Account created for ${req.userId}.` })
+    }
+
+
+}
 //Gets posts and comments made by a specific user, orders by date and sends them back.
 export const getUserInfo = async (req,res) => {
     const { id } = req.params

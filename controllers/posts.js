@@ -69,6 +69,8 @@ export const createPost = async (req,res) => {
 
     if(!req.userId) return res.json({message: 'Unauthenticated'})
 
+    //CHECK HERE IF THE USERID user DATABASE ENTRY EXISTS. IF NOT, MAKE ONE. ALSO DO SIMILAR FOR COMMENTS.
+
     const newPost = new PostMessage({...req.body, creator:req.userId, createdAt: new Date().toISOString()})
     
     try {
@@ -170,8 +172,8 @@ export const likeComment = async (req, res) => {
     }
     
     const comment = await Comment.findById(commentId)
-
-    if(req.userId !== comment.creator) return res.json({message: 'Not allowed to do that!'})
+//I think this checks and makes sure the requesting user is the creator. I don't need to do that for likes.
+    // if(req.userId !== comment.creator) return res.json({message: 'Not allowed to do that!'})
     
     const index = comment.likes.findIndex((id)=> id === String(req.userId) )
 
