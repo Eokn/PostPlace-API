@@ -90,24 +90,24 @@ export const getUserInfo = async (req,res) => {
     try {
         const search = isGoogleId ? String(id) : mongoose.Types.ObjectId(id)
         console.log(`searching with the search parameter ${search} in mind!`)
-        const userSearch = [
-            { $match : { _id: mongoose.Types.ObjectId(id) } },
-            { $lookup: { from: 'postmessages', localField: 'name', foreignField: 'name', as: 'posts' } }, 
-            { $lookup: { from: 'comments', localField: 'name', foreignField: 'name', as: 'comments' } },
-            { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
-        ]
-        const googleUserSearch = [
-            { $match : { id: String(id) } },
-            { $lookup: { from: 'postmessages', localField: 'name', foreignField: 'name', as: 'posts' } }, 
-            { $lookup: { from: 'comments', localField: 'name', foreignField: 'name', as: 'comments' } },
-            { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
-        ]
         let userInfo
         if(isGoogleId){
+            const googleUserSearch = [
+                { $match : { id: String(id) } },
+                { $lookup: { from: 'postmessages', localField: 'name', foreignField: 'name', as: 'posts' } }, 
+                { $lookup: { from: 'comments', localField: 'name', foreignField: 'name', as: 'comments' } },
+                { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
+            ]
             console.log('got down to here - right before the aggregate...')
             userInfo = await User.aggregate( googleUserSearch )
         }
         else{
+            const userSearch = [
+                { $match : { _id: mongoose.Types.ObjectId(id) } },
+                { $lookup: { from: 'postmessages', localField: 'name', foreignField: 'name', as: 'posts' } }, 
+                { $lookup: { from: 'comments', localField: 'name', foreignField: 'name', as: 'comments' } },
+                { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
+            ]
             userInfo = await User.aggregate( userSearch )
         }
         console.log('search completed', userInfo[0].name, userInfo[0].info)
