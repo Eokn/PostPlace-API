@@ -1,5 +1,6 @@
 import PostMessage from '../models/postMessage.js'
 import Comment from '../models/comment.js'
+import User from '../models/user.js'
 import mongoose from 'mongoose'
 
 //Get 8 posts according to page number, send them back.
@@ -54,7 +55,7 @@ export const getPost = async (req,res) => {
         const commentSearch = [
             { $match : { belongsTo: id } },
             { $sort : { createdAt: -1 } },
-            { $limit: 10 }
+            { $limit: 25 }
         ]
         const comments = await Comment.aggregate(commentSearch)
         res.status(200).json({posts, comments})
@@ -203,4 +204,33 @@ export const deleteComment = async (req, res) => {
     await Comment.findByIdAndRemove(commentId)
 
     res.json(originalComment)
+}
+
+//Delete all posts made by a user and their corresponding comments.
+export const deleteAllContent = async (req,res) => {
+
+    try {
+        const items = {...req.body}
+        const posts = await PostMessage.deleteMany( { creator : String(req.userId) } )
+        const comments = await Comment.deleteMany({ $or: [ { creator: String(req.userId) }, { belongsTo : { $in: Object.values(items).map(x=>x._id) } } ] })
+        res.status(200).json({targetPosts:posts, targetComments:comments})
+    } catch (error) {
+        res.status(404).json({ message: error })
+    }
+
+}
+
+//Delete User account, all posts and comments from them or on their posts.
+export const deleteAccount = async (req,res) => {
+    
+    try {
+        const items = {...req.body}
+        const posts = await PostMessage.deleteMany( { creator : String(req.userId) } )
+        const comments = await Comment.deleteMany({ $or: [ { creator: String(req.userId) }, { belongsTo : { $in: Object.values(items).map(x=>x._id) } } ] })
+        const user = await User.findByIdAndRemove(String(req.userId))
+        res.status(200).json({targetPosts:posts, targetComments:comments, targetUser:user})
+    } catch (error) {
+        res.status(404).json({ message: error })
+    }
+
 }

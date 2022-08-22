@@ -7,6 +7,7 @@ import User from './models/user.js'
 import PostMessage from './models/postMessage.js'
 import Comment from './models/comment.js'
 import { createServer } from "http";
+import bcrypt from 'bcryptjs'
 
 dotenv.config()
 
@@ -22,16 +23,17 @@ mongoose.connect(process.env.CONNECTION_URL, { useNewUrlParser: true, useUnified
 .catch( (err) => console.log(err, process.env.CONNECTION_URL) )
 
 
-//Generates 5 users, 20 posts.
+//Generates 5 users, 20 posts, pseudo-random amnt of comments, likes on all.
 const usersPostsSeed = async () => {
     for(let i = 0; i<5;i++){
         const first = faker.name.firstName()
         const last = faker.name.lastName()
         const password = faker.datatype.number()
+        const hashed = await bcrypt.hash(String(password), 12)
         const name = `${first} ${last}`
         const email = `${first}${last}@data.com`
-        const user = await User.create({ email, password, name })
-        console.log(user)
+        const user = await User.create({ email, password:hashed, name })
+        console.log(user, password)
         
     }
     const users = await User.find()
