@@ -27,8 +27,16 @@ export const getPostsWithSearch = async (req,res) => {
         const limit = 8
         const startIndex = (Number(page)-1)*limit
         const title = new RegExp(searchQuery, 'i')
-        const total = await PostMessage.countDocuments({ $or: [ { title }, { tags: { $in: tags.split(',') } } ] })
-        const posts = await PostMessage.find({ $or: [ { title }, { tags: { $in: tags.split(',') } } ] }).sort({createdAt: -1 }).limit(limit).skip(startIndex)
+        let total;
+        let posts;
+        if(searchQuery !== 'none' && tags != ""){
+            total = await PostMessage.countDocuments({ $and: [ { title }, { tags: { $in: tags.split(',') } } ] })
+            posts = await PostMessage.find({ $and: [ { title }, { tags: { $in: tags.split(',') } } ] }).sort({createdAt: -1 }).limit(limit).skip(startIndex)
+        } else {
+            total = await PostMessage.countDocuments({ $or: [ { title }, { tags: { $in: tags.split(',') } } ] })
+            posts = await PostMessage.find({ $or: [ { title }, { tags: { $in: tags.split(',') } } ] }).sort({createdAt: -1 }).limit(limit).skip(startIndex)
+        }
+        
         console.log(posts)
         res.status(200).json({data: posts, currentPage: Number(page), numberOfPages: Math.ceil(total / limit)})
     } catch (error) {
