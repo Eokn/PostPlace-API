@@ -1,6 +1,7 @@
 import PostMessage from '../models/postMessage.js'
 import Comment from '../models/comment.js'
 import User from '../models/user.js'
+import ChatMessage from '../models/chatMessage.js'
 import mongoose from 'mongoose'
 
 //Get 8 posts according to page number, send them back.
@@ -239,6 +240,34 @@ export const deleteAccount = async (req,res) => {
         res.status(200).json({targetPosts:posts, targetComments:comments, targetUser:user})
     } catch (error) {
         res.status(404).json({ message: error })
+    }
+
+}
+
+
+export const createChatMessage = async (req,res) => {
+
+    if(!req.userId) return res.json({message: 'Unauthenticated'})
+
+    const newChatMessage = new ChatMessage({...req.body, createdAt: new Date().toISOString()})
+    
+    try {
+        await newChatMessage.save()
+        res.status(201).json(newChatMessage)
+    } catch (error) {
+        res.status(409).json({ message: error.message })
+    }
+
+}
+
+export const getChatMessages = async (req,res) => {
+    try {
+        const limit = 25
+        const messages =  await ChatMessage.find().sort({createdAt:1}).limit(limit)
+        console.log(messages);
+        res.status(200).json({messages})
+    } catch (error) {
+        res.status(404).json({ message: error.message })
     }
 
 }

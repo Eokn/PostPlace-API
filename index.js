@@ -59,6 +59,10 @@ io.on("connection", (socket) => {
     io.emit('deletedComment', data)
   })
 
+  socket.on('addChatMessage', data => {
+    io.emit('addedChatMessage', data)
+  })
+
   socket.on("disconnect", () => {
     console.log("Client disconnected");
   });
