@@ -6,6 +6,9 @@ import userRoutes from './routes/users.js'
 import dotenv from 'dotenv'
 import { createServer } from "http";
 import { Server } from "socket.io";
+import dns from 'node:dns/promises';
+
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const app = express();
 dotenv.config()
@@ -70,6 +73,6 @@ io.on("connection", (socket) => {
 
 const PORT = process.env.PORT || 5000;
 
-mongoose.connect(process.env.CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false } )
+mongoose.connect(process.env.CONNECTION_URL)
 .then( () => httpServer.listen(PORT, ()=>console.log(`Server running on port ${PORT}`)) )
 .catch( (err) => console.log(err, process.env.CONNECTION_URL) )

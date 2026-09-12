@@ -54,7 +54,7 @@ export const getPost = async (req,res) => {
         const pipeline = [  
             { $match : { $or: [{tags: { $in: post.tags }}, {creator: { '$eq' : post.creator}}] } }, 
             { $addFields : { 
-                searched: { $eq : [ '$_id', mongoose.Types.ObjectId(id) ] }, 
+                searched: { $eq : [ '$_id', new mongoose.Types.ObjectId(id) ] }, 
                 numLikes: { $cond: { if: { $isArray: "$likes" }, then: { $size: "$likes" }, else: 0} } 
             } },
             { $sort : { searched: -1 , numLikes: -1 } },
@@ -105,7 +105,7 @@ export const updatePost = async (req, res) => {
 
     if(req.userId !== originalPost.creator) return res.json({message: 'Not allowed to do that!'})
     
-    const updatedPost = await PostMessage.findByIdAndUpdate(_id, {...post, _id}, { new: true });
+    const updatedPost = await PostMessage.findByIdAndUpdate(_id, {...post, _id}, { returnDocument: 'after' });
     res.json(updatedPost);
 }
 
@@ -123,7 +123,7 @@ export const deletePost = async (req, res) => {
     
     await Comment.deleteMany( {"belongsTo" : _id} )
 
-    await PostMessage.findByIdAndRemove(_id)
+    await PostMessage.findByIdAndDelete(_id)
 
     res.json(originalPost)
 }
@@ -150,7 +150,7 @@ export const likePost = async (req, res) => {
 
     }
 
-    const updatedPost = await PostMessage.findByIdAndUpdate(id, post, {new: true})
+    const updatedPost = await PostMessage.findByIdAndUpdate(id, post, {returnDocument: 'after'})
 
     res.json(updatedPost)
 }
@@ -193,7 +193,7 @@ export const likeComment = async (req, res) => {
 
     }
 
-    const updatedComment = await Comment.findByIdAndUpdate(commentId, comment, {new: true})
+    const updatedComment = await Comment.findByIdAndUpdate(commentId, comment, {returnDocument: 'after'})
 
     res.json(updatedComment)
 }
@@ -210,7 +210,7 @@ export const deleteComment = async (req, res) => {
 
     if(req.userId !== originalComment.creator) return res.json({message: 'Not allowed to do that!'})
 
-    await Comment.findByIdAndRemove(commentId)
+    await Comment.findByIdAndDelete(commentId)
 
     res.json(originalComment)
 }
@@ -236,7 +236,7 @@ export const deleteAccount = async (req,res) => {
         const items = {...req.body}
         const posts = await PostMessage.deleteMany( { creator : String(req.userId) } )
         const comments = await Comment.deleteMany({ $or: [ { creator: String(req.userId) }, { belongsTo : { $in: Object.values(items).map(x=>x._id) } } ] })
-        const user = await User.findByIdAndRemove(String(req.userId))
+        const user = await User.findByIdAndDelete(String(req.userId))
         res.status(200).json({targetPosts:posts, targetComments:comments, targetUser:user})
     } catch (error) {
         res.status(404).json({ message: error })

@@ -73,7 +73,7 @@ Post Place is a social media application where users can make posts and interact
 - axios
 - material-ui core/lab/icons
 - redux toolkit
-- react-router-dom
+- react-router
 - socket.io / socket.io-client
 - jwt / jwt-decode
 - react-file-base64

@@ -94,7 +94,7 @@ export const getUserInfo = async (req,res) => {
         }
         else{
             const userSearch = [
-                { $match : { _id: mongoose.Types.ObjectId(id) } },
+                { $match : { _id: new mongoose.Types.ObjectId(id) } },
                 { $lookup: { from: 'postmessages', localField: 'name', foreignField: 'name', as: 'posts' } }, 
                 { $lookup: { from: 'comments', localField: 'name', foreignField: 'name', as: 'comments' } },
                 { $project: { name: 1, info: { $concatArrays: ['$posts', '$comments'] } } }
